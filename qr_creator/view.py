@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import pathlib
-from PySide2.QtWidgets import QVBoxLayout, QHBoxLayout, QWidget, QLineEdit, QLabel, QCheckBox, QPushButton, QFrame, QSizePolicy, QFileDialog, QGridLayout
+from PySide2.QtWidgets import QVBoxLayout, QHBoxLayout, QWidget, QLineEdit, QLabel, QCheckBox, QPushButton, QFrame, QSizePolicy, QFileDialog, QGridLayout, QPlainTextEdit
 from PySide2.QtGui import QPixmap, QColor, QFont, QFontMetrics
 from PySide2.QtCore import Qt
 
@@ -89,8 +89,6 @@ class QFileBrowse(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.post_change_func = None
-
         self.layout = QGridLayout()
         self.button = QPushButton("Change save location")
         self.subfolder = QCheckBox("Create subfolder")
@@ -101,14 +99,21 @@ class QFileBrowse(QWidget):
         self._base_path = pathlib.Path(".").expanduser().resolve()
 
         # output path display
-        self.path_display = QLabel()
+        self.path_display = QPlainTextEdit()
+        # make bold
         font = self.path_display.font()
         font.setWeight(QFont.Bold)
         self.path_display.setFont(font)
+        # configure height
+        self.path_display.setFixedHeight(QFontMetrics(font).height()*2)
+        self.path_display.setLineWrapMode(QPlainTextEdit.NoWrap)
+        # styles
+        self.path_display.setReadOnly(True)
         self.path_display.setFrameStyle(QFrame.Box | QFrame.Sunken)
-        self.path_display.setLineWidth(1)
         self.path_display.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.path_display.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
+        self.path_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.path_display.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         # add widgets to layout
         self.layout.addWidget(self.button, 0, 0)
@@ -132,7 +137,14 @@ class QFileBrowse(QWidget):
         self.update_display()
 
     def update_display(self):
-        metrics = QFontMetrics(self.font())
-        elided_path = metrics.elidedText(str(self.save_path), Qt.ElideLeft, self.path_display.width() - 59)
-        self.path_display.setText(elided_path)
+        old_scroll = self.path_display.horizontalScrollBar().value()
+        old_max_scroll = self.path_display.horizontalScrollBar().maximum()
+
+        self.path_display.setPlainText(str(self.save_path))
+
+        if old_scroll == old_max_scroll:
+            new_max_scroll = self.path_display.horizontalScrollBar().maximum()
+            self.path_display.horizontalScrollBar().setValue(new_max_scroll)
+        else:
+            self.path_display.horizontalScrollBar().setValue(old_scroll)
 
