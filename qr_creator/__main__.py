@@ -10,13 +10,13 @@ from PySide2.QtWidgets import QApplication
 
 # this module
 from qr_creator.view import MainWindow
-from qr_creator.model import make_qr, save_qr
 from qr_creator.controller import process_gui, process_batch
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--debug', help='Don\'t actually save QR codes to the disk', action='store_true')
-parser.add_argument('-b', '--batch', help='Run the tool from the commandline. See additional info with the --help flag.', action='store_true')
+parser.add_argument('-b', '--batch', help='Run the tool from the commandline. See additional info with the --help flag.',
+                    action='store_true')
 parser.add_argument('-o', '--output', help='Path to the desired output directory', type=pathlib.Path, default='.')
 parser.add_argument('data', help='Data to encode. May be a list separated by commas', nargs='?', default='')
 args = parser.parse_args()
@@ -35,3 +35,4 @@ else:
     # show and execute
     ui.show()
     sys.exit(app.exec_())
+

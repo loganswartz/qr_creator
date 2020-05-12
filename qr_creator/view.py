@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 
+# builtins
 import pathlib
-from PySide2.QtWidgets import QVBoxLayout, QHBoxLayout, QWidget, QLineEdit, QLabel, QCheckBox, QPushButton, QFrame, QSizePolicy, QFileDialog, QGridLayout, QPlainTextEdit
+
+# 3rd party
+from PySide2.QtWidgets import (
+    QVBoxLayout, QFrame, QSizePolicy, QGridLayout, QWidget, QLineEdit, QLabel,
+    QCheckBox, QPushButton, QFileDialog, QPlainTextEdit
+)
 from PySide2.QtGui import QPixmap, QColor, QFont, QFontMetrics
 from PySide2.QtCore import Qt
 
@@ -63,7 +69,7 @@ class QLivePreview(QWidget):
 
         # placeholder background when nothing is shown
         self.blank_background = QPixmap(290, 290)
-        self.blank_background.fill(QColor(0,0,0,32))
+        self.blank_background.fill(QColor(0, 0, 0, 32))
 
         self.preview_layout = QVBoxLayout()
         self.preview_layout.addWidget(self.placeholder_text)
@@ -86,7 +92,7 @@ class QLivePreview(QWidget):
 
 
 class QFileBrowse(QWidget):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, subfolder_name='QR Codes', *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.layout = QGridLayout()
@@ -94,7 +100,7 @@ class QFileBrowse(QWidget):
         self.subfolder = QCheckBox("Create subfolder")
         self.subfolder.stateChanged.connect(self.update_display)
         self.button.clicked.connect(self.browse)
-        self.subfolder_name = 'QR Codes'
+        self.subfolder_name = subfolder_name
         self.dialog = QFileDialog()
         self._base_path = pathlib.Path(".").expanduser().resolve()
 
@@ -105,7 +111,7 @@ class QFileBrowse(QWidget):
         font.setWeight(QFont.Bold)
         self.path_display.setFont(font)
         # configure height
-        self.path_display.setFixedHeight(QFontMetrics(font).height()*2)
+        self.path_display.setFixedHeight(QFontMetrics(font).height() * 2)
         self.path_display.setLineWrapMode(QPlainTextEdit.NoWrap)
         # styles
         self.path_display.setReadOnly(True)
@@ -137,14 +143,14 @@ class QFileBrowse(QWidget):
         self.update_display()
 
     def update_display(self):
-        old_scroll = self.path_display.horizontalScrollBar().value()
-        old_max_scroll = self.path_display.horizontalScrollBar().maximum()
+        scrollbar = self.path_display.horizontalScrollBar()
+        old_scroll = scrollbar.value()
+        scrolled_to_end = old_scroll == scrollbar.maximum()
 
         self.path_display.setPlainText(str(self.save_path))
 
-        if old_scroll == old_max_scroll:
-            new_max_scroll = self.path_display.horizontalScrollBar().maximum()
-            self.path_display.horizontalScrollBar().setValue(new_max_scroll)
+        if scrolled_to_end:
+            scrollbar.setValue(scrollbar.maximum())
         else:
-            self.path_display.horizontalScrollBar().setValue(old_scroll)
+            scrollbar.setValue(old_scroll)
 
